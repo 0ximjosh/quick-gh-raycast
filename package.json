@@ -1,0 +1,73 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "quick-gh-raycast",
+  "title": "Quick GitHub",
+  "description": "Fuzzy-search GitHub repositories synced with the gh CLI and open them",
+  "icon": "icon.png",
+  "author": "0ximjosh",
+  "platforms": [
+    "macOS",
+    "Windows"
+  ],
+  "categories": [
+    "Developer Tools"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "search-repositories",
+      "title": "Search Repositories",
+      "subtitle": "Quick GitHub",
+      "description": "Fuzzy-search synced repositories and open them in the browser",
+      "mode": "view",
+      "keywords": [
+        "github",
+        "repo",
+        "fzf",
+        "open"
+      ]
+    },
+    {
+      "name": "sync-repositories",
+      "title": "Sync Repositories",
+      "subtitle": "Quick GitHub",
+      "description": "Fetch your GitHub repositories with gh and write them to the local config",
+      "mode": "no-view",
+      "keywords": [
+        "github",
+        "refresh",
+        "gh"
+      ]
+    },
+    {
+      "name": "organization-settings",
+      "title": "Organization Settings",
+      "subtitle": "Quick GitHub",
+      "description": "Enable or disable organizations included in repository search",
+      "mode": "view",
+      "keywords": [
+        "github",
+        "org",
+        "filter",
+        "settings"
+      ]
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "2.5.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@types/node": "22.19.17",
+    "@types/react": "19.0.10",
+    "eslint": "^9.28.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}
