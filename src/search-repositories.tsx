@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { configPath, readConfig, repositoryCount } from "./config";
 import { formatError } from "./format-error";
 import { syncRepositories } from "./github";
-import type { Config, Repository } from "./types";
+import { readLinks } from "./links";
+import type { Config, CustomLink, Repository } from "./types";
 
 type SearchItem = {
   org: string;
@@ -12,13 +13,15 @@ type SearchItem = {
 
 export default function SearchRepositories() {
   const [config, setConfig] = useState<Config | null>(null);
+  const [links, setLinks] = useState<CustomLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
     try {
-      const next = await readConfig();
+      const [next, nextLinks] = await Promise.all([readConfig(), readLinks()]);
       setConfig(next);
+      setLinks(nextLinks);
       setError(null);
     } catch (loadError) {
       setError(formatError(loadError));
@@ -53,11 +56,12 @@ export default function SearchRepositories() {
 
   const items = enabledItems(config);
   const enabledTotal = config ? repositoryCount(config, { enabledOnly: true }) : 0;
+  const searchTotal = enabledTotal + links.length;
 
   return (
     <List
       isLoading={isLoading}
-      searchBarPlaceholder={config ? `Search ${enabledTotal.toLocaleString()} repositories` : "Search repositories"}
+      searchBarPlaceholder={searchTotal > 0 ? `Search ${searchTotal.toLocaleString()} items` : "Search repositories"}
       filtering
       throttle
     >
@@ -70,11 +74,32 @@ export default function SearchRepositories() {
           />
         ) : (
           <List.EmptyView
-            title={emptyTitle(config, enabledTotal)}
-            description={emptyDescription(config, enabledTotal)}
+            title={emptyTitle(config, searchTotal)}
+            description={emptyDescription(config, searchTotal)}
             actions={<MaintenanceActions onSync={sync} />}
           />
         ))}
+      {links.map((link) => (
+        <List.Item
+          key={link.id}
+          icon={Icon.Link}
+          title={link.name}
+          subtitle={link.url}
+          keywords={[link.url]}
+          accessories={[{ tag: "Link" }]}
+          actions={
+            <ActionPanel>
+              <ActionPanel.Section>
+                <Action.OpenInBrowser title="Open Link" url={link.url} />
+                <Action.CopyToClipboard title="Copy URL" content={link.url} />
+              </ActionPanel.Section>
+              <ActionPanel.Section>
+                <AddLinkAction />
+              </ActionPanel.Section>
+            </ActionPanel>
+          }
+        />
+      ))}
       {items.map(({ org, repository }) => (
         <List.Item
           key={repository.fullName}
@@ -91,6 +116,7 @@ export default function SearchRepositories() {
                 <Action.CopyToClipboard title="Copy Repository Name" content={repository.fullName} />
               </ActionPanel.Section>
               <ActionPanel.Section>
+                <AddLinkAction />
                 <Action title="Sync Repositories" icon={Icon.ArrowClockwise} onAction={() => void sync()} />
                 <Action
                   title="Organization Settings"
@@ -106,10 +132,21 @@ export default function SearchRepositories() {
   );
 }
 
+function AddLinkAction() {
+  return (
+    <Action
+      title="Add Link"
+      icon={Icon.Link}
+      onAction={() => void launchCommand({ name: "add-link", type: LaunchType.UserInitiated })}
+    />
+  );
+}
+
 function MaintenanceActions({ onSync }: { onSync: () => void }) {
   return (
     <ActionPanel>
       <Action title="Sync Repositories" icon={Icon.ArrowClockwise} onAction={onSync} />
+      <AddLinkAction />
       <Action
         title="Organization Settings"
         icon={Icon.Gear}
@@ -150,22 +187,22 @@ function accessories(org: string, repository: Repository): List.Item.Accessory[]
   return items;
 }
 
-function emptyTitle(config: Config | null, enabledTotal: number): string {
+function emptyTitle(config: Config | null, searchTotal: number): string {
+  if (searchTotal > 0) {
+    return "No matching results";
+  }
   if (!config) {
     return "No repositories yet";
   }
-  if (enabledTotal === 0) {
-    return "No organizations enabled";
-  }
-  return "No matching repositories";
+  return "No organizations enabled";
 }
 
-function emptyDescription(config: Config | null, enabledTotal: number): string {
+function emptyDescription(config: Config | null, searchTotal: number): string {
+  if (searchTotal > 0) {
+    return "Try another name, organization, or description.";
+  }
   if (!config) {
     return `Sync with the GitHub CLI to write ${configPath}`;
   }
-  if (enabledTotal === 0) {
-    return "Turn organizations back on in Organization Settings.";
-  }
-  return "Try another name, organization, or description.";
+  return "Turn organizations back on in Organization Settings.";
 }

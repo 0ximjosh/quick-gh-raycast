@@ -27,3 +27,14 @@ export type SyncResult = {
   repositoryCount: number;
   configPath: string;
 };
+
+export type CustomLink = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+export type LinksFile = {
+  version: 1;
+  links: CustomLink[];
+};

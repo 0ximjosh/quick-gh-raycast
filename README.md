@@ -6,8 +6,9 @@ Sync stores every repository visible on your account and on each organization yo
 
 ## Commands
 
-- **Search Repositories** finds a repository by name, owner, or description and opens it in the browser.
+- **Search Repositories** finds a repository (or custom link) by name, owner, or description and opens it in the browser.
 - **Sync Repositories** runs `gh` and rewrites the config file. Existing enabled or disabled choices are kept. New owners default to enabled.
+- **Add Link** takes a name and a link and adds it to the same fuzzy search. Links live in `~/.config/quick-gh-raycast/links.json`, separate from the synced config, so syncing never touches them. A link without a scheme gets `https://`.
 - **Organization Settings** enables or disables each owner in search.
 
 Your personal account is stored the same way as an organization, under your GitHub login.

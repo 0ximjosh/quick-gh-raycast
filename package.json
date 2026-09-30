@@ -40,6 +40,18 @@
       ]
     },
     {
+      "name": "add-link",
+      "title": "Add Link",
+      "subtitle": "Quick GitHub",
+      "description": "Add a custom link to the search list",
+      "mode": "view",
+      "keywords": [
+        "link",
+        "url",
+        "bookmark"
+      ]
+    },
+    {
       "name": "organization-settings",
       "title": "Organization Settings",
       "subtitle": "Quick GitHub",
